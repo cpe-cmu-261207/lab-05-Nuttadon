@@ -3,8 +3,13 @@ const todoCtn = document.getElementById("todo-container");
 
 inputAdd.onkeyup = (event) => {
   if (event.key !== "Enter") return;
-
-  //your code here
+  if (inputAdd.value.trim() === "") {
+    alert("Todo cannot be empty");
+    inputAdd.value = "";
+    return;
+  } else {
+    addTodo(inputAdd.value, false);
+  }
 };
 
 function addTodo(title, completed) {
@@ -28,7 +33,36 @@ function addTodo(title, completed) {
   deleteBtn.innerText = "Delete";
   deleteBtn.className = "btn btn-danger";
 
-  //your code here
+  doneBtn.style.display = "none";
+  deleteBtn.style.display = "none";
+  div.appendChild(span);
+  div.appendChild(doneBtn);
+  div.appendChild(deleteBtn);
+  todoCtn.prepend(div);
+  inputAdd.value = "";
+  saveTodo();
+  deleteBtn.onclick = () => {
+    todoCtn.removeChild(div);
+    saveTodo();
+  };
+  doneBtn.onclick = () => {
+    if (span.style.textDecoration === "line-through") {
+      span.style.textDecoration = "none";
+      saveTodo();
+    } else {
+      span.style.textDecoration = "line-through";
+      saveTodo();
+    }
+  };
+  div.onmouseover = () => {
+    doneBtn.style.display = "";
+    deleteBtn.style.display = "";
+  };
+  div.onmouseout = () => {
+    doneBtn.style.display = "none";
+    deleteBtn.style.display = "none";
+  };
+
   //append todo to HTML...
   //define buttons event...
 }
@@ -36,13 +70,24 @@ function addTodo(title, completed) {
 function saveTodo() {
   const data = [];
   for (const todoDiv of todoCtn.children) {
-    //your code here
+    const todoObj = {};
+    todoObj.title = todoDiv.children[0].innerText;
+    todoObj.completed =
+      todoDiv.children[0].style.textDecoration === "line-through";
+    data.push(todoObj);
   }
-  //your code here
+  const dataStr = JSON.stringify(data);
+  localStorage.setItem("todoListData", dataStr);
 }
 
 function loadTodo() {
-  //your code here
+  const dataStr = localStorage.getItem("todoListData");
+  const data = JSON.parse(dataStr);
+  data.reverse();
+
+  for (const tObj of data) {
+    addTodo(tObj.title, tObj.completed);
+  }
 }
 
 loadTodo();
